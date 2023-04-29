@@ -45,6 +45,20 @@ class GenomeAnalyser:
         with open(Path("protein_seq.txt"), "w") as f:
             f.write(str(protein_seq))
 
+    def get_codons(self) -> None:
+        total_codons = len(self.genome) // 3
+        codon_counts = {}
+        for i in range(0, len(self.genome) - 2, 3):
+            codon = str(self.genome[i:i + 3])
+            if codon in codon_counts:
+                codon_counts[codon] += 1
+            else:
+                codon_counts[codon] = 1
+        codon_freqs = {codon: count / total_codons for codon, count in codon_counts.items()}
+        with open(Path("codons.txt"), "w") as f:
+            f.writelines(
+                [f"{key}: {value}\n" for key, value in sorted(codon_freqs.items(), key=lambda a: a[1], reverse=True)])
+
 
 if __name__ == '__main__':
     genome_analyzer = GenomeAnalyser()
@@ -56,3 +70,6 @@ if __name__ == '__main__':
     print("Generated files with RNK sequence: rnk_seq.txt!")
     print("//0_0\\\\: Wow!")
     print("Generated files with Protein sequence: rnk_seq.txt!")
+    print("^-^ ^_^ ^.^ ^o^ Getting codons!...")
+    genome_analyzer.get_codons()
+    print("O_o!! Look! Codons are in codons.txt file! ^-^")
