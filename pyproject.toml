@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "bioinformatika_project"
+version = "2.2.8"
+description = "Kek"
+authors = [
+    "Rogov Artemiy",
+    "Vika Tarasova"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.12"
+biopython = "^1.81"
