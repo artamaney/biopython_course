@@ -10,3 +10,5 @@ authors = [
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"
 biopython = "^1.81"
+matplotlib = "^3.7.1"
+nglview = "^3.0.4"

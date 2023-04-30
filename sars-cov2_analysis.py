@@ -1,4 +1,7 @@
 from Bio import SeqIO
+from Bio.SeqUtils import six_frame_translations
+from Bio import PDB
+import matplotlib.pyplot as plt
 from pathlib import Path
 
 
@@ -40,10 +43,10 @@ class GenomeAnalyser:
     def get_rnk_and_protein(self) -> None:
         rna_seq = self.genome.transcribe()
         protein_seq = rna_seq.translate()
-        with open(Path("rnk_seq.txt"), "w") as f:
-            f.write(str(rna_seq))
-        with open(Path("protein_seq.txt"), "w") as f:
-            f.write(str(protein_seq))
+        with open(Path("rnk_seq.fasta"), "w") as f:
+            f.write(">rna" + str(rna_seq))
+        with open(Path("protein_seq.fasta"), "w") as f:
+            f.write(">protein\n" +str(protein_seq))
 
     def get_codons(self) -> None:
         total_codons = len(self.genome) // 3
@@ -59,6 +62,48 @@ class GenomeAnalyser:
             f.writelines(
                 [f"{key}: {value}\n" for key, value in sorted(codon_freqs.items(), key=lambda a: a[1], reverse=True)])
 
+    def get_orf(self) -> None:
+        print(six_frame_translations(self.genome))
+
+    def print_3d_covid19(self) -> None:
+        parser = PDB.PDBParser()
+
+        # загружаем структуру белка из файла covid.pdb
+        structure = parser.get_structure('covid', 'covid.pdb')
+
+        # выбираем первую модель структуры (обычно белки содержат только одну модель)
+        model = structure[0]
+
+        # создаем объекты для хранения координат атомов и их типов
+        coords = []
+        types = []
+
+        for chain in model:
+            for residue in chain:
+                for atom in residue:
+                    coords.append(atom.get_coord())
+                    types.append(atom.get_name())
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        for i in range(len(coords)):
+            x, y, z = coords[i]
+            if types[i] == 'CA':
+                ax.scatter(x, y, z, c='blue', marker='o')
+            elif types[i] == 'O':
+                ax.scatter(x, y, z, c='red', marker='o')
+            else:
+                ax.scatter(x, y, z, c='gray', marker='.')
+
+        # настраиваем параметры графика
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title('COVID-19 spike protein')
+
+        plt.show()
+
 
 if __name__ == '__main__':
     genome_analyzer = GenomeAnalyser()
@@ -73,3 +118,11 @@ if __name__ == '__main__':
     print("^-^ ^_^ ^.^ ^o^ Getting codons!...")
     genome_analyzer.get_codons()
     print("O_o!! Look! Codons are in codons.txt file! ^-^")
+    print("==*******************************==")
+    print()
+    print()
+    print("ORF: ")
+    genome_analyzer.get_orf()
+    print()
+    print("3D covid13!!!!")
+    genome_analyzer.print_3d_covid19()
